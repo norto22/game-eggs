@@ -4,21 +4,21 @@
         "version": "PTDL_v2",
         "update_url": null
     },
-    "exported_at": "2024-04-05T01:19:24+02:00",
+    "exported_at": "2026-05-14T00:37:54+10:00",
     "name": "Stationeers",
     "author": "eggs@goover.dev",
-    "description": "Stationeers Server",
+    "description": "Stationeers dedicated server. Post-September-2025 terrain-update CLI (-file start). Supports all 6 playable maps plus tutorial scenarios. Set Beta Branch to 'preterrain' for legacy pre-update saves.",
     "features": [
         "steam_disk_space"
     ],
     "docker_images": {
-        "ghcr.io\/ptero-eggs\/steamcmd:ubuntu": "ghcr.io\/ptero-eggs\/steamcmd:ubuntu"
+        "ghcr.io\/ptero-eggs\/steamcmd:ubuntu_24.04": "ghcr.io\/ptero-eggs\/steamcmd:ubuntu_24.04"
     },
     "file_denylist": [],
-    "startup": "stty cols 80 rows 24; .\/rocketstation_DedicatedServer.x86_64  -loadlatest \"{{SAVE_NAME}}\" {{WORLD_NAME}} -settings ServerName \"{{SERVER_NAME}}\" StartLocalHost true ServerVisible true GamePort {{SERVER_PORT}} UpdatePort {{UPDATE_PORT}} AutoSave {{AUTOSAVE}} SaveInterval {{SAVE_INTERVAL}} ServerPassword {{SERVER_PASSWD}} ServerMaxPlayers {{MAX_PLAYERS}} UPNPEnabled {{UPNP}} ;2>&1",
+    "startup": "export LD_LIBRARY_PATH=\".\/steamcmd\/linux64:.\/rocketstation_DedicatedServer_Data\/Plugins\/x86_64:.\/:${LD_LIBRARY_PATH}\"; stty cols 80 rows 24; .\/rocketstation_DedicatedServer.x86_64 SavePath \"\/home\/container\" -file start \"${SAVE_NAME}\" ${WORLD_ID} ${DIFFICULTY} ${START_CONDITION} ${START_LOCATION} -noclear -settings StartLocalHost true ServerVisible true GamePort ${SERVER_PORT} UpdatePort ${UPDATE_PORT} ServerName \"${SERVER_NAME}\" ServerPassword \"${SERVER_PASSWD}\" ServerMaxPlayers ${MAX_PLAYERS} ServerAuthSecret \"${SERVER_AUTH_SECRET}\" AutoSave ${AUTOSAVE} SaveInterval ${SAVE_INTERVAL} AutoPauseServer ${AUTO_PAUSE} UPNPEnabled ${UPNP} UseSteamP2P ${USE_STEAM_P2_P} LocalIpAddress 0.0.0.0 -logFile -",
     "config": {
         "files": "{}",
-        "startup": "{\r\n    \"done\": \"World load complete\"\r\n}",
+        "startup": "{\r\n    \"done\": \"Host override address provided:\"\r\n}",
         "logs": "{}",
         "stop": "^C"
     },
@@ -32,7 +32,7 @@
     "variables": [
         {
             "name": "Server Name",
-            "description": "",
+            "description": "Display name shown in the server browser.",
             "env_variable": "SERVER_NAME",
             "default_value": "Pterodactyl Hosted Server",
             "user_viewable": true,
@@ -41,13 +41,53 @@
             "field_type": "text"
         },
         {
-            "name": "World Name",
-            "description": "Available Maps: Moon, Mars, Europa, Europa2, Mimas, Vulcan, Vulcan2, Space, Loulan, Venus",
-            "env_variable": "WORLD_NAME",
-            "default_value": "moon",
+            "name": "Save Name",
+            "description": "Name of the world save folder. Auto-loaded on next boot if autosave is on.",
+            "env_variable": "SAVE_NAME",
+            "default_value": "world",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "nullable|string|in:,Moon,Mars,Europa,Europa2,Mimas,Vulcan,Vulcan2,Space,Loulan,Venus",
+            "rules": "required|string|max:100",
+            "field_type": "text"
+        },
+        {
+            "name": "Map",
+            "description": "Maps: Moon (Lunar), Mars (Mars2), Europa (Europa3), MimasHerschel, Vulcan, Venus. Tutorials: Tutorial1, Tutorial2, Tutorial3, Airlock, FurnaceBasics, Manufacturing. For tutorials, leave Difficulty, Start Condition, and Start Location empty.",
+            "env_variable": "WORLD_ID",
+            "default_value": "Mars2",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:Lunar,Mars2,Europa3,MimasHerschel,Vulcan,Venus,Tutorial1,Tutorial2,Tutorial3,Airlock,FurnaceBasics,Manufacturing",
+            "field_type": "text"
+        },
+        {
+            "name": "Difficulty",
+            "description": "Creative, Easy, Normal, Stationeer",
+            "env_variable": "DIFFICULTY",
+            "default_value": "Normal",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:Creative,Easy,Normal,Stationeer",
+            "field_type": "text"
+        },
+        {
+            "name": "Start Condition",
+            "description": "Default (DefaultStart), Default Community (DefaultStartCommunity), Brutal, Brutal Community (BrutalCommunity)",
+            "env_variable": "START_CONDITION",
+            "default_value": "DefaultStart",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:DefaultStart,DefaultStartCommunity,Brutal,BrutalCommunity",
+            "field_type": "text"
+        },
+        {
+            "name": "Start Location",
+            "description": "Map-specific spawn ID. See https:\/\/stationeers-wiki.com\/Dedicated_Server_Guide for valid IDs per map.",
+            "env_variable": "START_LOCATION",
+            "default_value": "MarsSpawnButchersFlat",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:100",
             "field_type": "text"
         },
         {
@@ -62,22 +102,22 @@
         },
         {
             "name": "Server Password",
-            "description": "",
+            "description": "Leave blank for a public server.",
             "env_variable": "SERVER_PASSWD",
             "default_value": "",
             "user_viewable": false,
             "user_editable": false,
-            "rules": "string|nullable",
+            "rules": "nullable|string",
             "field_type": "text"
         },
         {
-            "name": "Save Name",
-            "description": "Name of the save of your world.\r\nAuto save & auto load worlds on server startup.",
-            "env_variable": "SAVE_NAME",
-            "default_value": "stationeers_1",
+            "name": "Server Auth Secret",
+            "description": "Secret used by the server for authentication. Change from default before going public.",
+            "env_variable": "SERVER_AUTH_SECRET",
+            "default_value": "changechange",
             "user_viewable": true,
-            "user_editable": true,
-            "rules": "required|string|max:20",
+            "user_editable": false,
+            "rules": "required|string|max:128",
             "field_type": "text"
         },
         {
@@ -92,22 +132,52 @@
         },
         {
             "name": "Save Interval",
-            "description": "Sets the server\u2019s auto-save interval in seconds.",
+            "description": "Time in seconds between each autosave. Should not be below 60.",
             "env_variable": "SAVE_INTERVAL",
             "default_value": "300",
             "user_viewable": true,
             "user_editable": true,
-            "rules": "required|integer",
+            "rules": "required|integer|between:60,604800",
+            "field_type": "text"
+        },
+        {
+            "name": "Auto Pause Server",
+            "description": "Pause the server when no players are connected.",
+            "env_variable": "AUTO_PAUSE",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|in:true,false",
             "field_type": "text"
         },
         {
             "name": "UPNP",
-            "description": "",
+            "description": "Enable UniversalPlugAndPlay (auto port forwarding; router must support).",
             "env_variable": "UPNP",
             "default_value": "false",
             "user_viewable": true,
             "user_editable": true,
             "rules": "required|string|in:true,false",
+            "field_type": "text"
+        },
+        {
+            "name": "Use Steam P2P",
+            "description": "Whether the server should allow Steam P2P connections. Recommended to keep disabled.",
+            "env_variable": "USE_STEAM_P2_P",
+            "default_value": "false",
+            "user_viewable": false,
+            "user_editable": false,
+            "rules": "required|string|in:true,false",
+            "field_type": "text"
+        },
+        {
+            "name": "Update Port",
+            "description": "Steam query port. Game port is separate (SERVER_PORT allocation).",
+            "env_variable": "UPDATE_PORT",
+            "default_value": "27015",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|string|max:5",
             "field_type": "text"
         },
         {
@@ -122,7 +192,7 @@
         },
         {
             "name": "Auto Update",
-            "description": "",
+            "description": "Set to 1 to auto-update on boot, 0 to disable.",
             "env_variable": "AUTO_UPDATE",
             "default_value": "1",
             "user_viewable": true,
@@ -131,18 +201,8 @@
             "field_type": "text"
         },
         {
-            "name": "Update Port",
-            "description": "",
-            "env_variable": "UPDATE_PORT",
-            "default_value": "27014",
-            "user_viewable": true,
-            "user_editable": true,
-            "rules": "required|string|max:50",
-            "field_type": "text"
-        },
-        {
             "name": "Beta Branch",
-            "description": "",
+            "description": "SteamCMD beta branch (e.g., preterrain). Leave blank for the default branch.",
             "env_variable": "SRCDS_BETAID",
             "default_value": "",
             "user_viewable": true,

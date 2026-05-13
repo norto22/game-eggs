@@ -18,7 +18,7 @@
     "startup": "export LD_LIBRARY_PATH=\".\/steamcmd\/linux64:.\/rocketstation_DedicatedServer_Data\/Plugins\/x86_64:.\/:${LD_LIBRARY_PATH}\"; stty cols 80 rows 24; .\/rocketstation_DedicatedServer.x86_64 SavePath \"\/home\/container\" -file start \"${SAVE_NAME}\" ${WORLD_ID} ${DIFFICULTY} ${START_CONDITION} ${START_LOCATION} -noclear -settings StartLocalHost true ServerVisible true GamePort ${SERVER_PORT} UpdatePort ${UPDATE_PORT} ServerName \"${SERVER_NAME}\" ServerPassword \"${SERVER_PASSWD}\" ServerMaxPlayers ${MAX_PLAYERS} ServerAuthSecret \"${SERVER_AUTH_SECRET}\" AutoSave ${AUTOSAVE} SaveInterval ${SAVE_INTERVAL} AutoPauseServer ${AUTO_PAUSE} UPNPEnabled ${UPNP} UseSteamP2P ${USE_STEAM_P2_P} LocalIpAddress 0.0.0.0 -logFile -",
     "config": {
         "files": "{}",
-        "startup": "{\r\n    \"done\": \"Host override address provided:\"\r\n}",
+        "startup": "{\r\n    \"done\": \"registered with session #\"\r\n}",
         "logs": "{}",
         "stop": "^C"
     },

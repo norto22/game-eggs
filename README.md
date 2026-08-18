@@ -213,7 +213,9 @@ Below is a categorized list of games with links to their respective server confi
 
 #### [Mordhau](./mordhau)
 
-#### [Mount & Blade II: Bannerlord](./mount_blade_II_bannerlord)
+#### Mount & Blade II: Bannerlord
+* [Dedicated Server](./mount_blade_II_bannerlord)
+* [Coop](./mount_blade_II_bannerlord_coop)
 
 #### [Myth of Empires](./myth_of_empires)
 
